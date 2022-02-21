@@ -30,13 +30,13 @@ def get_current_mac(iface):
     if not search_results:
         print("[-] couldn't find current MAC address")
     else:
-        return search_results.group(0)
+        return str(search_results.group(0))
 
 
 options = get_parameters()
-print("[+] Current MAC is " + str(get_current_mac(options.iface)))
+print("[+] Current MAC is " + get_current_mac(options.iface))
 change_mac(options.iface, options.mac)
-new_mac = str(get_current_mac(options.iface))
+new_mac = get_current_mac(options.iface)
 if new_mac == options.mac:
     print("[+] MAC address changed successfully to " + new_mac)
 else:

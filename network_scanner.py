@@ -2,6 +2,7 @@
 
 import scapy.all as scapy
 import optparse
+from shared import arp_scan
 
 
 def get_parameters():
@@ -12,12 +13,6 @@ def get_parameters():
         parser.error('[-] target is required. use --help for more information')
     return options.target
 
-
-def arp_scan(ip):
-    arp_request = scapy.ARP(pdst=ip)
-    broadcast = scapy.Ether(dst="ff:ff:ff:ff:ff:ff")
-    arp_broadcast_request = broadcast / arp_request
-    return scapy.srp(arp_broadcast_request, timeout=1, verbose=False)[0]
 
 
 def print_scan(answered):

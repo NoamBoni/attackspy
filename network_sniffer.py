@@ -40,8 +40,7 @@ def handle_packet(packet):
             credentials = get_credentials(packet)
             if credentials:
                 print("[+] url is " + url.decode())
-                print("\n\n[+] potential sensitive data >>>>" +
-                      credentials + "\n\n")
+                print("\n\n[+] potential sensitive data >>>>\n %s\n\n" % credentials)
 
 
 options = get_parameters()

